@@ -1,7 +1,35 @@
+apiVersion: v1
+data:
+  raj.conf: |
+    Hello Guys,This is Config file of Rajwardhan!
+kind: ConfigMap
+metadata:
+  name: raj-configmap
+  namespace: raj-namespace
+
+  
+---
+
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: raj-secret
+  namespace: raj-namespace
+type: Opaque
+data:
+  #username: YWRtaW4=
+  #password: MWYyZDFlMmU2N2Rm
+
+ 
+---
+
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nodeapp-deployment
+  name: nodeapp-deployment-raj
+  namespace: raj-namespace
   labels:
     app: nodeapp
 spec:
@@ -19,14 +47,31 @@ spec:
         image: thetips4you/nodeapp:latest
         ports:
         - containerPort: 3000
-        
-        
+        volumeMounts:
+         - name: testconfigmap
+           mountPath: "/tmp/config" 
+         - name: testsecret
+           mountPath: "/tmp/mysecrets"
+      volumes:
+        - name: testconfigmap
+          configMap:
+            name: raj-configmap
+            items:
+              - key: raj.conf
+                path: raj.conf
+        - name: testsecret
+          secret:
+            secretName: raj-secret
+
+
 ---
+
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodeapp-service
+  name: nodeapp-service-raj
+  namespace: raj-namespace
 spec:
   selector:
     app: nodeapp 
